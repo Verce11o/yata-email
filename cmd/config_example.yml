@@ -1,0 +1,9 @@
+rabbitmq:
+  username: vercello
+  password: vercello
+  host: localhost
+  port: 5672
+  exchangeName: emails-exchange
+  queueName: emails-queue
+  consumerTag: emails-consumer
+  bindingKey: emails-routing-key
