@@ -22,7 +22,7 @@ func Run() {
 
 	amqpConn := rabbitmq.NewAmqpConnection(cfg.RabbitMQ)
 
-	emailsConsumer := rabbitmq.NewEmailConsumer(amqpConn, log, tracer.Tracer)
+	emailsConsumer := rabbitmq.NewEmailConsumer(amqpConn, cfg.SMTP, log, tracer.Tracer)
 
 	go func() {
 		err := emailsConsumer.StartConsumer(

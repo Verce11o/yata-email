@@ -1,20 +1,24 @@
 package rabbitmq
 
 import (
+	"encoding/json"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
-	"log"
+	"yata-email/config"
+	"yata-email/internal/domain"
+	mail "yata-email/internal/lib"
 )
 
 type EmailConsumer struct {
 	AmqpConn *amqp.Connection
+	smtpConf config.SMTP
 	log      *zap.SugaredLogger
 	trace    trace.Tracer
 }
 
-func NewEmailConsumer(amqpConn *amqp.Connection, log *zap.SugaredLogger, trace trace.Tracer) *EmailConsumer {
-	return &EmailConsumer{AmqpConn: amqpConn, log: log, trace: trace}
+func NewEmailConsumer(amqpConn *amqp.Connection, smtpConf config.SMTP, log *zap.SugaredLogger, trace trace.Tracer) *EmailConsumer {
+	return &EmailConsumer{AmqpConn: amqpConn, smtpConf: smtpConf, log: log, trace: trace}
 }
 
 func (c *EmailConsumer) createChannel(exchangeName, queueName, bindingKey string) *amqp.Channel {
@@ -100,11 +104,29 @@ func (c *EmailConsumer) StartConsumer(queueName, consumerTag, exchangeName, bind
 
 func (c *EmailConsumer) worker(index int, messages <-chan amqp.Delivery) {
 	for message := range messages {
-		log.Printf("Worker #%d: %v", index, string(message.Body))
-		err := message.Ack(false)
+		c.log.Infof("Worker #%d: %v", index, string(message.Body))
+
+		var request domain.IncomingMailRequest
+
+		err := json.Unmarshal(message.Body, &request)
+
+		if err != nil {
+			c.log.Errorf("failed to unmarshal request: %v", err)
+		}
+
+		err = mail.SendCode(c.smtpConf.Host, c.smtpConf.Username, c.smtpConf.Password, request.To, request.Code)
+
+		if err != nil {
+			c.log.Errorf("failed to send email: %v", err)
+
+		}
+
+		err = message.Ack(false)
+
 		if err != nil {
 			c.log.Errorf("failed to acknowledge delivery: %v", err)
 		}
+
 	}
 	c.log.Info("Channel closed")
 }

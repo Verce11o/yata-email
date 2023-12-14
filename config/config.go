@@ -7,6 +7,7 @@ import (
 
 type Config struct {
 	RabbitMQ RabbitMQ `yaml:"rabbitmq"`
+	SMTP     SMTP     `json:"smtp"`
 }
 
 type RabbitMQ struct {
@@ -18,6 +19,12 @@ type RabbitMQ struct {
 	QueueName    string `yaml:"queueName" env-required:"true"`
 	ConsumerTag  string `yaml:"consumerTag" env-required:"true"`
 	BindingKey   string `yaml:"bindingKey" env-required:"true"`
+}
+
+type SMTP struct {
+	Host     string `yaml:"host" env-required:"true"`
+	Username string `yaml:"username" env-required:"true"`
+	Password string `yaml:"password" env-required:"true"`
 }
 
 func LoadConfig() *Config {
