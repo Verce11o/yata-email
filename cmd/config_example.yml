@@ -12,3 +12,7 @@ smtp:
   host: smtp.gmail.com:587
   username: some-email@gmail.com
   password: some-password
+
+app:
+  password_email_type: password
+  email_confirmation_type: email

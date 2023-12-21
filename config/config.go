@@ -7,7 +7,7 @@ import (
 
 type Config struct {
 	RabbitMQ RabbitMQ `yaml:"rabbitmq"`
-	SMTP     SMTP     `json:"smtp"`
+	SMTP     SMTP     `yaml:"smtp"`
 }
 
 type RabbitMQ struct {
@@ -22,9 +22,11 @@ type RabbitMQ struct {
 }
 
 type SMTP struct {
-	Host     string `yaml:"host" env-required:"true"`
-	Username string `yaml:"username" env-required:"true"`
-	Password string `yaml:"password" env-required:"true"`
+	Host                  string `yaml:"host" env-required:"true"`
+	Username              string `yaml:"username" env-required:"true"`
+	Password              string `yaml:"password" env-required:"true"`
+	PasswordEmailType     string `yaml:"password_email_type" env-required:"true"`
+	EmailConfirmationType string `yaml:"email_confirmation_type" env-required:"true"`
 }
 
 func LoadConfig() *Config {

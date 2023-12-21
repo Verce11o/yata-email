@@ -114,7 +114,7 @@ func (c *EmailConsumer) worker(index int, messages <-chan amqp.Delivery) {
 			c.log.Errorf("failed to unmarshal request: %v", err)
 		}
 
-		err = mail.SendCode(c.smtpConf.Host, c.smtpConf.Username, c.smtpConf.Password, request.To, request.Code)
+		err = mail.SendCode(c.smtpConf, request.To, request.Type, request.Code)
 
 		if err != nil {
 			c.log.Errorf("failed to send email: %v", err)
